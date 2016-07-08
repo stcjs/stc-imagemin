@@ -68,7 +68,7 @@ const minify = async (cmd, buffer, extname) => {
   let ret = await readFile(files.output);
   // not await
   Promise.all([unlink(files.input), unlink(files.output)]);
-  return ret.toString('binary');
+  return ret.toString('base64');
 }
 
 export default class ImageMinPlugin extends Plugin {
@@ -90,6 +90,7 @@ export default class ImageMinPlugin extends Plugin {
       case 'gif':
         return this.minifyGif(buffer);
     }
+    this.fatal(`imagemin only support PNG, JPEG, GIF files`);
   }
 
   /**
@@ -113,8 +114,9 @@ export default class ImageMinPlugin extends Plugin {
     return minify(gifsicle, buffer, 'gif');
   }
 
-  async update(binary){
-    this.setContent(binary);
+  async update(base64){
+    let buffer = new Buffer(base64, 'base64');
+    this.setContent(buffer);
   }
   /**
    * default include patterns
