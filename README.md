@@ -1,6 +1,6 @@
 # stc-imagemin
 
-Minify PNG, JPEG, GIF and SVG images for stc
+Minify PNG, JPEG and GIF images for stc
 
 
 ## Support 
@@ -23,9 +23,5 @@ Minify PNG, JPEG, GIF and SVG images for stc
 * [jpeg-recompress-bin](https://github.com/imagemin/jpeg-recompress-bin)
 
 ### gif
-
-* [gifsicle-bin](https://github.com/imagemin/gifsicle-bin)
-
-### png => webp
 
 * [gifsicle-bin](https://github.com/imagemin/gifsicle-bin)

@@ -29,7 +29,7 @@ let options = null;
 /**
  * get random string
  */
-const getRandomStr = (length = 32) => {
+const getRandomStr = (length = 64) => {
   let str = crypto.randomBytes(Math.ceil(length * 0.75)).toString('base64').slice(0, length);
   return str.replace(/[\+\/]/g, '_');
 };
@@ -55,21 +55,8 @@ const formatArgs = (args, files) => {
     }
     return item;
   })
-}
+};
 
-/**
- * minify files
- */
-const minify = async (cmd, buffer, extname) => {
-  let files = getTmpFiles(extname);
-  let opt = options[extname], args = formatArgs(opt.args, files);
-  await writeFile(files.input, buffer);
-  await execFile(opt.adapter, args);
-  let ret = await readFile(files.output);
-  // not await
-  Promise.all([unlink(files.input), unlink(files.output)]);
-  return ret.toString('base64');
-}
 
 export default class ImageMinPlugin extends Plugin {
   /**
@@ -84,37 +71,50 @@ export default class ImageMinPlugin extends Plugin {
     switch(extname){
       case 'jpg':
       case 'jpeg':
-        return this.minifyJpg(buffer);
+        return this.minify(jpegtran, buffer, 'jpg');
       case 'png':
-        return this.minifyPng(buffer);
+        return this.minify(pngquant, buffer, 'png');
       case 'gif':
-        return this.minifyGif(buffer);
+        return this.minify(gifsicle, buffer, 'gif');
     }
     this.fatal(`imagemin only support PNG, JPEG, GIF files`);
   }
-
   /**
-   * minify jpg files
+   * minify file
    */
-  async minifyJpg(buffer){
-    return minify(jpegtran, buffer, 'jpg');
+  async minify(cmd, buffer, extname) {
+    let files = getTmpFiles(extname);
+    let opt = options[extname];
+    let args = formatArgs(opt.args, files);
+    fs.writeFileSync('/Users/welefen/Downloads/aaa.png', buffer);
+    await writeFile(files.input, buffer);
+    await this.parallelLimit(() => {
+      return execFile(opt.adapter, args);
+    }, err => {
+      if(err.code === 'EAGAIN'){
+        return true;
+      }
+    }, 100).catch(err => {
+      return unlink(files.input).then(() => {
+        return Promise.reject(err);
+      })
+    });
+    let retBuf = await readFile(files.output);
+    // not await
+    await Promise.all([unlink(files.input), unlink(files.output)]);
+    // ignore when optimize image large than source image
+    if(retBuf.length >= buffer.length){
+      return;
+    }
+    return retBuf.toString('base64');
   }
-
   /**
-   * minify png files
+   * update
    */
-  minifyPng(buffer){
-    return minify(pngquant, buffer, 'png');
-  }
-
-  /**
-   * minify gif files
-   */
-  minifyGif(buffer){
-    return minify(gifsicle, buffer, 'gif');
-  }
-
-  async update(base64){
+  update(base64){
+    if(!base64){
+      return;
+    }
     let buffer = new Buffer(base64, 'base64');
     this.setContent(buffer);
   }
