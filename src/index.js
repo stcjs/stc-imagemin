@@ -19,9 +19,9 @@ const unlink = promisify(fs.unlink, fs);
  * default options
  */
 const defaultOptions = {
-  png: {adapter: pngquant, args: ['-o', 'outfile', 'inputfile']},
-  gif: {adapter: gifsicle, args: ['-o', 'outfile', 'inputfile']},
-  jpg: {adapter: jpegtran, args: ['-outfile', 'outfile', 'inputfile']}
+  png: {adapter: pngquant, args: ['-o', 'outfile', 'infile']},
+  gif: {adapter: gifsicle, args: ['-o', 'outfile', 'infile']},
+  jpg: {adapter: jpegtran, args: ['-outfile', 'outfile', 'infile']}
 }
 
 let options = null;
@@ -50,7 +50,7 @@ const formatArgs = (args, files) => {
   return args.map(item => {
     if(item === 'outfile'){
       return files.output;
-    }else if(item === 'inputfile'){
+    }else if(item === 'infile'){
       return files.input;
     }
     return item;
