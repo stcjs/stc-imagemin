@@ -86,7 +86,6 @@ export default class ImageMinPlugin extends Plugin {
     let files = getTmpFiles(extname);
     let opt = options[extname];
     let args = formatArgs(opt.args, files);
-    fs.writeFileSync('/Users/welefen/Downloads/aaa.png', buffer);
     await writeFile(files.input, buffer);
     await this.parallelLimit(() => {
       return execFile(opt.adapter, args);
@@ -102,7 +101,7 @@ export default class ImageMinPlugin extends Plugin {
     let retBuf = await readFile(files.output);
     // not await
     await Promise.all([unlink(files.input), unlink(files.output)]);
-    // ignore when optimize image large than source image
+    // ignore when optimize image larger than source image
     if(retBuf.length >= buffer.length){
       return;
     }
