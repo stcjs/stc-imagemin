@@ -87,7 +87,7 @@ export default class ImageMinPlugin extends Plugin {
     let opt = options[extname];
     let args = formatArgs(opt.args, files);
     await writeFile(files.input, buffer);
-    await this.parallelLimit(() => {
+    await this.concurrentLimit(() => {
       return execFile(opt.adapter, args);
     }, err => {
       if(err.code === 'EAGAIN'){
