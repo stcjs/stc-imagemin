@@ -22,7 +22,7 @@ const defaultOptions = {
   png: {adapter: pngquant, args: ['-o', 'outfile', 'infile']},
   gif: {adapter: gifsicle, args: ['-o', 'outfile', 'infile']},
   jpg: {adapter: jpegtran, args: ['-outfile', 'outfile', 'infile']}
-}
+};
 
 let options = null;
 
@@ -41,7 +41,7 @@ const getTmpFiles = (extname = '') => {
   return {
     input: tmpdir + path.sep + 'input_' + str + '.' + extname,
     output: tmpdir + path.sep + 'output_' + str + '.' + extname
-  }
+  };
 };
 /**
  * format args
@@ -54,7 +54,7 @@ const formatArgs = (args, files) => {
       return files.input;
     }
     return item;
-  })
+  });
 };
 
 
@@ -71,18 +71,18 @@ export default class ImageMinPlugin extends Plugin {
     switch(extname){
       case 'jpg':
       case 'jpeg':
-        return this.minify(jpegtran, buffer, 'jpg');
+        return this.minify(buffer, 'jpg');
       case 'png':
-        return this.minify(pngquant, buffer, 'png');
+        return this.minify(buffer, 'png');
       case 'gif':
-        return this.minify(gifsicle, buffer, 'gif');
+        return this.minify(buffer, 'gif');
     }
     this.fatal(`imagemin only support PNG, JPEG, GIF files`);
   }
   /**
    * minify file
    */
-  async minify(cmd, buffer, extname) {
+  async minify(buffer, extname) {
     let files = getTmpFiles(extname);
     let opt = options[extname];
     let args = formatArgs(opt.args, files);
@@ -96,7 +96,7 @@ export default class ImageMinPlugin extends Plugin {
     }, 100).catch(err => {
       return unlink(files.input).then(() => {
         return Promise.reject(err);
-      })
+      });
     });
     let retBuf = await readFile(files.output);
     // not await
